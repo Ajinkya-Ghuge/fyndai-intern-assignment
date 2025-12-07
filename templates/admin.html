@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Admin Dashboard – Feedback</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-dark mb-4">
+  <div class="container">
+    <span class="navbar-brand mb-0 h1">Admin Dashboard</span>
+    <span class="text-light">Hello, {{ admin_name }}</span>
+  </div>
+</nav>
+
+<div class="container">
+  <h3 class="mb-3">All User Feedback</h3>
+
+  {% if data|length == 0 %}
+    <div class="alert alert-warning">No feedback yet. Ask users to submit a review.</div>
+  {% else %}
+
+    <!-- Download button -->
+    <div class="d-flex justify-content-end mb-2">
+      <button id="downloadCsvBtn" class="btn btn-success btn-sm">
+        Download table as CSV
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped align-middle admin-table">
+        <thead class="table-dark">
+          <tr>
+            <th scope="col">Rating</th>
+            <th scope="col">Review</th>
+            <th scope="col">AI Summary</th>
+            <th scope="col">AI Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for r in data %}
+          <tr>
+            <td>{{ r["rating"] }}</td>
+            <td>{{ r["review"] }}</td>
+            <td>{{ r["summary"] }}</td>
+            <td>
+              <div class="ai-action-card">
+                <div class="ai-label">AI Suggestions</div>
+                {% set raw = r["actions"] %}
+                {% set pretty = raw
+                    |replace('["','• ')
+                    |replace('"]','')
+                    |replace('", "','<br>• ')
+                %}
+                <div class="ai-content">{{ pretty|safe }}</div>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const ratingCells = document.querySelectorAll('tbody td:first-child');
+  ratingCells.forEach(cell => {
+    const ratingText = cell.textContent.trim();
+    const rating = parseInt(ratingText);
+    if (!isNaN(rating) && rating >= 1 && rating <= 5) {
+      const row = cell.closest('tr');
+      row.setAttribute('data-rating', rating);
+      const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+      cell.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+          <div style="font-size: 1.2rem; letter-spacing: 1px;">${stars}</div>
+          <div style="font-size: 1rem; font-weight: 800; color: inherit;">${rating}/5</div>
+        </div>
+      `;
+    }
+  });
+
+  const aiContents = document.querySelectorAll('.ai-content');
+  aiContents.forEach(content => {
+    const html = content.innerHTML;
+    const formatted = html.replace(/•/g, '<span class="ai-bullet">');
+    content.innerHTML = formatted.replace(/<br>/g, '</span>');
+  });
+
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+  if (isTouchDevice) {
+    const tableRows = document.querySelectorAll('tbody tr');
+    tableRows.forEach(row => {
+      row.style.padding = '10px 0';
+      row.addEventListener('touchstart', function() {
+        this.style.backgroundColor = 'rgba(67, 97, 238, 0.1)';
+      });
+      row.addEventListener('touchend', function() {
+        this.style.backgroundColor = '';
+      });
+    });
+
+    const aiCards = document.querySelectorAll('.ai-action-card');
+    aiCards.forEach(card => {
+      card.style.padding = '15px';
+      card.style.minHeight = '120px';
+    });
+  }
+
+  const tableResponsive = document.querySelector('.table-responsive');
+  if (tableResponsive && tableResponsive.scrollWidth > tableResponsive.clientWidth) {
+    tableResponsive.style.position = 'relative';
+    const indicator = document.createElement('div');
+    indicator.innerHTML = '<small class="text-muted" style="position: absolute; right: 10px; top: 10px; z-index: 1;">← Scroll →</small>';
+    tableResponsive.style.paddingTop = '25px';
+    tableResponsive.appendChild(indicator);
+  }
+
+  // Download CSV button logic
+  const downloadBtn = document.getElementById('downloadCsvBtn');
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', function () {
+      const table = document.querySelector('.admin-table');
+      if (!table) return;
+
+      let csv = '';
+      const rows = table.querySelectorAll('tr');
+
+      rows.forEach((row, rowIndex) => {
+        const cells = row.querySelectorAll(rowIndex === 0 ? 'th' : 'td');
+        const rowData = [];
+        cells.forEach(cell => {
+          let text = cell.innerText.replace(/\n/g, ' ').trim();
+          text = '"' + text.replace(/"/g, '""') + '"';
+          rowData.push(text);
+        });
+        csv += rowData.join(',') + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      const now = new Date();
+      const fileName = `feedback_export_${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}.csv`;
+
+      link.setAttribute('href', url);
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    });
+  }
+});
+
+const style = document.createElement('style');
+style.textContent = `
+  @media (max-width: 768px) {
+    .ai-action-card {
+      transform: none !important;
+      margin: 5px 0;
+    }
+    .table tbody td {
+      padding: 12px 8px !important;
+    }
+    .table-dark th {
+      padding: 12px 8px !important;
+      font-size: 0.85rem !important;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .navbar-brand.mb-0.h1 {
+      font-size: 1.2rem !important;
+    }
+    .text-light {
+      font-size: 0.9rem !important;
+      padding: 0.4rem 0.8rem !important;
+    }
+    .container h3.mb-3 {
+      font-size: 1.3rem !important;
+    }
+    .ai-bullet {
+      font-size: 0.85rem !important;
+      margin-bottom: 0.4rem !important;
+    }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  tbody tr {
+    animation: fadeIn 0.3s ease-out;
+  }
+`;
+document.head.appendChild(style);
+</script>
+
+</body>
+</html>
