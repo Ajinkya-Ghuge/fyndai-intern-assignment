@@ -44,34 +44,6 @@ The LLM outputs predictions in structured JSON:
 }
 Dataset
 
-Source: Yelp Reviews Dataset (Kaggle)
-File Used: yelp.csv
-Rows Sampled: ~200 reviews (for evaluation efficiency)
-
-Prompting Approaches
-Three different prompting strategies were implemented:
-
-Prompt v1 – Basic Classification
-Simple instruction to classify review into stars.
-Minimal constraints.
-Prompt v2 – Guided Prompt
-Explicit guidance on sentiment and rating mapping.
-Improved consistency.
-Prompt v3 – Rubric-Based Prompt
-Clear star-level rubric (1–5).
-Enforced JSON-only response.
-
-Evaluation Metrics
-Each prompt was evaluated on:
-
-Accuracy: Actual stars vs predicted stars
-JSON Validity Rate: Correctly formatted JSON responses
-Reliability: Consistency across similar reviews
-
-Findings
-
-
-
 
 
 
@@ -196,3 +168,4 @@ Contributing 🤝
 Contributions welcome! Please open an issue or PR for bugs, features, or improvements. Follow the code of conduct.
 License 📄
 This project is licensed under the MIT License - see the LICENSE file for details.
+
