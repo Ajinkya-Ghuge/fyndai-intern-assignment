@@ -1,177 +1,129 @@
-🤖 AI Feedback & Rating Prediction System
+# 🤖 AI Feedback & Rating Prediction System
 
-An end-to-end AI-powered system built as part of the FYND AI Intern Take-Home Assessment, consisting of:
+An end-to-end AI-powered system built as part of the **FYND AI Intern Take-Home Assessment**, consisting of:
 
-Task 1: Yelp review star-rating prediction using prompt engineering
+- **Task 1:** Yelp review star-rating prediction using prompt engineering  
+- **Task 2:** A two-dashboard AI feedback web application using Flask and Gemini LLM  
 
-Task 2: A production-ready, two-dashboard AI feedback web application using Flask and Gemini LLM
+---
 
-📌 Table of Contents
+## 📌 Table of Contents
 
-Project Overview
+- [Project Overview](#project-overview)
+- [Task 1 – Rating Prediction via Prompting](#task-1--rating-prediction-via-prompting)
+- [Task 2 – Two-Dashboard AI Feedback System](#task-2--two-dashboard-ai-feedback-system)
+- [Tech Stack](#tech-stack)
+- [Installation & Setup](#installation--setup)
+- [Running the Application](#running-the-application)
+- [Environment Variables](#environment-variables)
+- [Project Structure](#project-structure)
+- [Database Schema](#database-schema)
+- [Deployment](#deployment)
+- [Evaluation Summary](#evaluation-summary)
+- [License](#license)
 
-Task 1 – Rating Prediction via Prompting
+---
 
-Task 2 – Two-Dashboard AI Feedback System
+## 🚀 Project Overview
 
-Tech Stack
+This project demonstrates practical applications of **Large Language Models (LLMs)** in:
 
-Installation & Setup
+1. Predicting numeric ratings from free-text reviews  
+2. Building a real-world AI-powered feedback analysis system  
 
-Running the Application
+The system uses **Google Gemini (2.5 Flash)** for all LLM-based components and stores data in a shared **SQLite database**.
 
-Environment Variables
+---
 
-Project Structure
+## 🧠 Task 1 – Rating Prediction via Prompting
 
-Database Schema
+### Objective
+Predict **1–5 star ratings** from Yelp review text using prompt engineering techniques, without model fine-tuning.
 
-Deployment
+### Dataset
+- Yelp Reviews dataset (Kaggle)
+- Random sample of **200 reviews**
+- Fields: `text`, `stars`
 
-Evaluation Summary
+### Prompting Strategies
 
-License
+| Version | Strategy | Description |
+|------|---------|-------------|
+| V1 | Zero-Shot | Basic sentiment-to-rating mapping |
+| V2 | Few-Shot + CoT | In-context examples with reasoning |
+| V3 | Role-Play + Constraints | Strict JSON output with validation |
 
-🚀 Project Overview
+Each approach returns structured JSON using a Pydantic schema.
 
-This project demonstrates practical applications of Large Language Models (LLMs) in:
+### Results
 
-Natural Language → Rating prediction using structured prompting
+| Prompt Version | Accuracy | JSON Validity |
+|--------------|----------|---------------|
+| Prompt_V1 | 34.5% | 100% |
+| Prompt_V2 | 34.0% | 100% |
+| Prompt_V3 | **35.0%** | 100% |
 
-Real-world feedback analysis with AI-generated replies, summaries, and actionable insights
+Prompt_V3 achieved the best overall performance.
 
-The system uses Google Gemini (2.5 Flash) for all LLM-powered components and stores feedback in a shared SQLite database.
+---
 
-🧠 Task 1 – Rating Prediction via Prompting
-🎯 Objective
+## 🌐 Task 2 – Two-Dashboard AI Feedback System
 
-Predict 1–5 star ratings from Yelp review text using prompt engineering, without fine-tuning.
-
-📊 Dataset
-
-Yelp Reviews dataset (Kaggle)
-
-Random sample of 200 reviews
-
-Fields used: text, stars
-
-🧪 Prompting Strategies
-
-Three prompting approaches were evaluated:
-
-Version	Strategy	Description
-V1	Zero-Shot	Basic sentiment → rating mapping
-V2	Few-Shot + CoT	In-context examples with reasoning
-V3	Role-Play + Constraints	Strict JSON-only, validation-focused
-
-Each prompt returns structured JSON using a Pydantic schema.
-
-📈 Results Summary
-Prompt Version	Accuracy	JSON Validity
-Prompt_V1	34.5%	100%
-Prompt_V2	34.0%	100%
-Prompt_V3	35.0%	100%
-
-Prompt_V3 achieved the best balance between accuracy and reliability.
-Full implementation is available in task1.py and the report .
-
-🌐 Task 2 – Two-Dashboard AI Feedback System
-🎯 Objective
-
+### Objective
 Build a web-based feedback platform with:
+- A **User Dashboard** for submitting reviews
+- An **Admin Dashboard** for monitoring AI-generated insights
 
-A User Dashboard for submitting reviews
+### System Flow
 
-An Admin Dashboard for monitoring AI-generated insights
+1. User submits a star rating and review  
+2. Review is sent to the Gemini LLM  
+3. AI generates:
+   - Friendly user reply  
+   - One-line summary  
+   - Actionable recommendations  
+4. Data is stored in SQLite  
+5. Admin dashboard displays all submissions
 
-🔄 System Flow
+---
 
-User submits a rating + review
+## 🛠 Tech Stack
 
-Review is sent to Gemini LLM
+**Backend**
+- Python
+- Flask
+- SQLite
 
-AI generates:
+**AI / LLM**
+- Google Gemini 2.5 Flash
+- `google-generativeai`
 
-Friendly reply
+**Frontend**
+- HTML
+- Bootstrap
 
-One-line summary
+**Deployment**
+- Gunicorn
+- Heroku-compatible Procfile
 
-Actionable recommendations
+---
 
-Data is stored in SQLite
+## ⚙️ Installation & Setup
 
-Admin dashboard displays all feedback in real time
-
-🧩 Core Application
-
-Implemented in Flask (app.py)
-
-🛠 Tech Stack
-
-Backend
-
-Python
-
-Flask
-
-SQLite
-
-AI / LLM
-
-Google Gemini 2.5 Flash
-
-google-generativeai
-
-Frontend
-
-HTML
-
-Bootstrap
-
-Deployment
-
-Gunicorn
-
-Procfile (Heroku-ready)
-
-Dependencies listed in requirement.txt
-
-⚙️ Installation & Setup
-# Clone repository
-git clone <your-repo-url>
+```bash
+git clone <repository-url>
 cd <project-folder>
 
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-# Install dependencies
 pip install -r requirement.txt
-
-▶️ Running the Application
 python app.py
-
-
-User Dashboard → http://127.0.0.1:5000/
-
-Admin Dashboard → http://127.0.0.1:5000/admin?name=Admin
-
-🔐 Environment Variables
-
-Create a .env file with:
-
-GEMINI_API_KEY=your_gemini_api_key
-ADMIN_PASSWORD=admin123
-
-
-(Loaded automatically using python-dotenv)
-
-📂 Project Structure
 .
-├── app.py                # Flask application
-├── task1.py              # Task 1 rating prediction
+├── app.py
+├── task1.py
 ├── utils/
-│   └── gemini_llm.py     # LLM helper functions
+│   └── gemini_llm.py
 ├── templates/
 │   ├── user.html
 │   └── admin.html
@@ -181,45 +133,3 @@ ADMIN_PASSWORD=admin123
 ├── Procfile
 ├── .env
 └── TASK 1 and 2 Report.pdf
-
-🗄 Database Schema
-
-Table: submissions
-
-Column	Type	Description
-id	INTEGER	Primary key
-rating	INTEGER	User rating
-review	TEXT	User review
-ai_reply	TEXT	LLM reply
-summary	TEXT	AI summary
-actions	TEXT	JSON actions
-created_at	REAL	Timestamp
-
-Defined and initialized in app.py .
-
-☁️ Deployment
-
-The project is Heroku-ready using:
-
-web: gunicorn app:app
-
-
-(Defined in Procfile)
-
-📊 Evaluation Summary
-
-✔ Reliable structured AI output (100% JSON validity)
-
-✔ Shared database across dashboards
-
-✔ Real-time admin visibility
-
-✔ Clean, responsive UI
-
-✔ Graceful handling of API rate limits
-
-This system demonstrates real-world applicability of LLMs for feedback analysis and decision support.
-
-📄 License
-
-This project is submitted for educational and evaluation purposes as part of the FYND AI Intern Assessment.
